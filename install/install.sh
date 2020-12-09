@@ -4,6 +4,7 @@ PIPELINE_NS=mq-pipeline
 PIPELINE_SA=mqpipeline
 
 MQ_NS=<insert the MQ namespace here>
+PN_NS=<insert the Platform Navigator namespace here>
 
 GIT_SECRET_NAME=user-at-github
 
@@ -79,10 +80,11 @@ oc create clusterrolebinding mqpipelineviewerbinding --clusterrole=view --servic
 oc create clusterrole secretreader --verb=get --resource=secrets 
 oc -n $MQ_NS create rolebinding secretreaderbinding --clusterrole=secretreader --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
-# Allow the serviceaccount to create routes in the mq namespace
+# Allow the serviceaccount to create routes in the mq namespace and Platform Navigator namespace
 
 oc create clusterrole routecreator --verb=get --verb=list --verb=watch --verb=create --verb=update --verb=patch --verb=delete --resource=routes,routes/custom-host
 oc -n $MQ_NS create rolebinding routecreatorbinding --clusterrole=routecreator --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc -n $PN_NS create rolebinding routecreatorbinding --clusterrole=routecreator --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
 # Add the serviceaccount to privileged SecurityContextConstraint
 oc adm policy add-scc-to-user privileged system:serviceaccount:$PIPELINE_NS:$PIPELINE_SA
