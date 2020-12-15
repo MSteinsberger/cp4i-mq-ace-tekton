@@ -37,7 +37,7 @@ kubectl apply -f - <<EOF
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: $PIPELINE_SA
+  name: $PIPELINE_SA
 secrets:
 - name: $GIT_SECRET_NAME
 EOF
@@ -47,20 +47,20 @@ cat << EOF | kubectl apply -f -
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: tekton-pipelines-admin
+  name: tekton-pipelines-admin
 rules:
 # Permissions for every EventListener deployment to function
 - apiGroups: ["triggers.tekton.dev"]
-  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
-  verbs: ["get"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
+  verbs: ["get"]
 - apiGroups: [""]
-  # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
-  resources: ["configmaps", "secrets", "serviceaccounts"]
-  verbs: ["get", "list", "watch"]
+  # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
+  resources: ["configmaps", "secrets", "serviceaccounts"]
+  verbs: ["get", "list", "watch"]
 # Permissions to create resources in associated TriggerTemplates
 - apiGroups: ["tekton.dev"]
-  resources: ["pipelineruns", "pipelineresources", "taskruns"]
-  verbs: ["create"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
 EOF
 
 # Create these ClusterRoleBindings
@@ -74,17 +74,6 @@ oc create clusterrolebinding mqpipelineqmeditbinding --clusterrole=queuemanagers
 oc create clusterrolebinding mqpipelineqmviewbinding --clusterrole=queuemanagers.mq.ibm.com-v1beta1-view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
 oc create clusterrolebinding mqpipelineviewerbinding --clusterrole=view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-
-# Allow the serviceaccount to get secrets from the mq namespace
-
-oc create clusterrole secretreader --verb=get --resource=secrets 
-oc -n $MQ_NS create rolebinding secretreaderbinding --clusterrole=secretreader --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-
-# Allow the serviceaccount to create routes in the mq namespace and Platform Navigator namespace
-
-oc create clusterrole routecreator --verb=get --verb=list --verb=watch --verb=create --verb=update --verb=patch --verb=delete --resource=routes,routes/custom-host
-oc -n $MQ_NS create rolebinding routecreatorbinding --clusterrole=routecreator --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-oc -n $PN_NS create rolebinding routecreatorbinding --clusterrole=routecreator --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
 # Add the serviceaccount to privileged SecurityContextConstraint
 oc adm policy add-scc-to-user privileged system:serviceaccount:$PIPELINE_NS:$PIPELINE_SA
@@ -101,18 +90,18 @@ cat << EOF | kubectl apply -f -
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  labels:
-    app.kubernetes.io/managed-by: EventListener
-    app.kubernetes.io/part-of: Triggers
-    eventlistener: el-cicd-mq
-  name: el-el-cicd-mq-hook-route
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: el-cicd-mq
+  name: el-el-cicd-mq-hook-route
 spec:
-  port:
-    targetPort: http-listener
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-  to:
-    kind: Service
-    name: el-el-cicd-mq
+  port:
+    targetPort: http-listener
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: el-el-cicd-mq
 EOF
