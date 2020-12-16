@@ -1,7 +1,16 @@
 #! /bin/bash
 
-PIPELINE_NS=mq-pipeline
-PIPELINE_SA=mqpipeline
+PIPELINE_NS=mq00-pipeline
+PIPELINE_SA=mq00pipeline
+
+CRB_PL_ADMIN=mq00pipelinetektonpipelinesadminbinding
+CRB_TRIG_ADMIN=mq00pipelinetektontriggersadminbinding
+CRB_PULLER=mq00pipelinepullerbinding
+CRB_BUILDER=mq00pipelinebuilderinding
+CRB_QM_EDIT=mq00pipelineqmeditbinding
+CRB_QM_VIEW=mq00pipelineqmviewbinding
+CRB_VIEW=mq00pipelineviewbinding
+CRB_EDIT=mq00pipelineeditbinding
 
 MQ_NS=<insert the MQ namespace here>
 PN_NS=<insert the Platform Navigator namespace here>
@@ -64,19 +73,27 @@ rules:
 EOF
 
 # Create these ClusterRoleBindings
-oc create clusterrolebinding mqpipelinetektonpipelinesadminbinding --clusterrole=tekton-pipelines-admin --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-oc create clusterrolebinding mqpipelinetektontriggersadminbinding --clusterrole=tekton-triggers-admin --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_PL_ADMIN --clusterrole=tekton-pipelines-admin --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_TRIG_ADMIN --clusterrole=tekton-triggers-admin --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
-oc create clusterrolebinding mqpipelinepullerbinding --clusterrole=system:image-puller --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-oc create clusterrolebinding mqpipelinebuilderinding --clusterrole=system:image-builder --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_PULLER --clusterrole=system:image-puller --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_BUILDER --clusterrole=system:image-builder --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
-oc create clusterrolebinding mqpipelineqmeditbinding --clusterrole=queuemanagers.mq.ibm.com-v1beta1-edit --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
-oc create clusterrolebinding mqpipelineqmviewbinding --clusterrole=queuemanagers.mq.ibm.com-v1beta1-view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_QM_EDIT --clusterrole=queuemanagers.mq.ibm.com-v1beta1-edit --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_QM_VIEW --clusterrole=queuemanagers.mq.ibm.com-v1beta1-view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
 
-oc create clusterrolebinding mqpipelineviewerbinding --clusterrole=view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_QM_EDIT --clusterrole=queuemanagers.mq.ibm.com-v1beta1-edit --serviceaccount=$MQ_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_QM_VIEW --clusterrole=queuemanagers.mq.ibm.com-v1beta1-view --serviceaccount=$MQ_NS:$PIPELINE_SA
+
+oc create clusterrolebinding $CRB_VIEW --clusterrole=view --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_EDIT --clusterrole=edit --serviceaccount=$PIPELINE_NS:$PIPELINE_SA
+
+oc create clusterrolebinding $CRB_VIEW --clusterrole=view --serviceaccount=$MQ_NS:$PIPELINE_SA
+oc create clusterrolebinding $CRB_EDIT --clusterrole=edit --serviceaccount=$MQ_NS:$PIPELINE_SA
 
 # Add the serviceaccount to privileged SecurityContextConstraint
 oc adm policy add-scc-to-user privileged system:serviceaccount:$PIPELINE_NS:$PIPELINE_SA
+oc adm policy add-scc-to-user privileged system:serviceaccount:$MQ_NS:$PIPELINE_SA
 
 # Add tekton resources
 oc apply -f ./tekton/pipelines/
