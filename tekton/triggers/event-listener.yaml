@@ -3,7 +3,7 @@ kind: EventListener
 metadata:
   name: el-cicd-mq
 spec:
-  serviceAccountName: mqpipeline
+  serviceAccountName: mq00pipeline
   triggers:
     - name: cicd-trigger
       template:
