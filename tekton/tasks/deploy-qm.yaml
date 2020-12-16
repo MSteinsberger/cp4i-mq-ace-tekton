@@ -17,6 +17,8 @@ spec:
       description: Secret to supply to the QueueManager deplyoment
     - name: MQ_PVC_SC
       type: string
+    - name: SVC_ACCT
+      type: string
   resources:
     inputs:
       - name: source
@@ -36,6 +38,8 @@ spec:
           value: $(params.MQ_CERT_SECRET)
         - name: MQ_PVC_SC
           value: $(params.MQ_PVC_SC)
+        - name: SVC_ACCT
+          value: $(params.SVC_ACCT)
       script: |
           set -e
           # Grab the Git commit tag
