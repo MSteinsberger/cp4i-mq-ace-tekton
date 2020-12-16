@@ -18,6 +18,8 @@ spec:
         params:
           - name: MQ_PVC_SC
             value: $(params.mq_pvc_sc)
+          - name: SVC_ACCT
+            value: $(params.SVC_ACCT)
         resources:
           - name: source
             resourceRef:
