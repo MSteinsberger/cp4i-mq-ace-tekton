@@ -12,16 +12,16 @@ CRB_QM_VIEW=mq00pipelineqmviewbinding
 CRB_VIEW=mq00pipelineviewbinding
 CRB_EDIT=mq00pipelineeditbinding
 
-MQ_NS=<insert the MQ namespace here>
-PN_NS=<insert the Platform Navigator namespace here>
+MQ_NS=<insert MQ namespace here>
+PN_NS=<insert Platform Navigator namespace here>
 
 GIT_SECRET_NAME=user-at-github
 
 # Insert your Git Access Token below
-GIT_TOKEN=<paste git token here and remove brackets>
+GIT_TOKEN=<insert your git token here>
 
 # Insert your Git UserName here
-GIT_USERNAME=<paste github username here and remove brackets>
+GIT_USERNAME=<insert your git user name here>
 
 # Create the pipeline namespace
 kubectl create ns $PIPELINE_NS
@@ -46,7 +46,7 @@ kubectl apply -f - <<EOF
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: $PIPELINE_SA
+  name: $PIPELINE_SA
 secrets:
 - name: $GIT_SECRET_NAME
 EOF
@@ -56,20 +56,20 @@ cat << EOF | kubectl apply -f -
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: tekton-pipelines-admin
+  name: tekton-pipelines-admin
 rules:
 # Permissions for every EventListener deployment to function
 - apiGroups: ["triggers.tekton.dev"]
-  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
-  verbs: ["get"]
+  resources: ["eventlisteners", "triggerbindings", "triggertemplates"]
+  verbs: ["get"]
 - apiGroups: [""]
-  # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
-  resources: ["configmaps", "secrets", "serviceaccounts"]
-  verbs: ["get", "list", "watch"]
+  # secrets are only needed for Github/Gitlab interceptors, serviceaccounts only for per trigger authorization
+  resources: ["configmaps", "secrets", "serviceaccounts"]
+  verbs: ["get", "list", "watch"]
 # Permissions to create resources in associated TriggerTemplates
 - apiGroups: ["tekton.dev"]
-  resources: ["pipelineruns", "pipelineresources", "taskruns"]
-  verbs: ["create"]
+  resources: ["pipelineruns", "pipelineresources", "taskruns"]
+  verbs: ["create"]
 EOF
 
 # Create these ClusterRoleBindings
@@ -103,22 +103,21 @@ oc apply -f ./tekton/triggers/
 
 # Create route for webhook
 cat << EOF | kubectl apply -f -
-
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  labels:
-    app.kubernetes.io/managed-by: EventListener
-    app.kubernetes.io/part-of: Triggers
-    eventlistener: el-cicd-mq
-  name: el-el-cicd-mq-hook-route
+  labels:
+    app.kubernetes.io/managed-by: EventListener
+    app.kubernetes.io/part-of: Triggers
+    eventlistener: el-cicd-mq
+  name: el-el-cicd-mq-hook-route
 spec:
-  port:
-    targetPort: http-listener
-  tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: edge
-  to:
-    kind: Service
-    name: el-el-cicd-mq
+  port:
+    targetPort: http-listener
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+  to:
+    kind: Service
+    name: el-el-cicd-mq
 EOF
