@@ -12,7 +12,7 @@ spec:
       metadata:
         generateName: mq-cp4i-pipelinerun-
       spec:
-        serviceAccountName: mqpipeline
+        serviceAccountName: mq00pipeline
         pipelineRef:
           name: mq-pipeline
         params:
