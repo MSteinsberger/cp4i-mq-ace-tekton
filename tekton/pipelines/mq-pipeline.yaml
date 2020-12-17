@@ -15,7 +15,7 @@ spec:
       default: mq00pl
     - name: TARGET_NAMESPACE
       type: string
-      default: mq00pl
+      default: mq00-pipeline
     - name: MQ_CERT_SECRET
       type: string
       default: mqcert-secret
@@ -44,7 +44,9 @@ spec:
         - name: MQ_CERT_SECRET
           value: $(params.MQ_CERT_SECRET)
         - name: MQ_PVC_SC
-          value: $(params.MQ_PVC_SC)          
+          value: $(params.MQ_PVC_SC)
+        - name: SVC_ACCT
+          value: $(params.SVC_ACCT)          
       resources:
         inputs:
           - name: source
