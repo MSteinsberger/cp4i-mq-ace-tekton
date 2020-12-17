@@ -15,7 +15,7 @@ spec:
       default: mq00pl
     - name: TARGET_NAMESPACE
       type: string
-      default: mq00-pipeline
+      default: cp4i
     - name: MQ_CERT_SECRET
       type: string
       default: mqcert-secret
