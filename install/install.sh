@@ -14,6 +14,7 @@ CRB_EDIT=mq00pipelineeditbinding
 
 MQ_NS=<insert MQ namespace here>
 PN_NS=<insert Platform Navigator namespace here>
+REG_SECRET=ibm-entitlement-key
 
 GIT_SECRET_NAME=user-at-github
 
@@ -28,6 +29,9 @@ kubectl create ns $PIPELINE_NS
 
 # Change to the new namespace
 oc project $PIPELINE_NS
+
+# Copy docker-registry secret to the new namespace
+oc get secret $REG_SECRET -n $MQ_NS --export -o yaml | oc apply -n $PIPELINE_NS -f -
 
 # install tekton pipelines v0.14.3
 kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/previous/v0.14.3/release.yaml
